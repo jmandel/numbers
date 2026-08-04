@@ -24,6 +24,7 @@ export function CardScreen() {
   useEffect(() => {
     graded.current = false;
     setEntered(false);
+    setBurst(0);
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
     return () => cancelAnimationFrame(raf);
   }, [current, style]);
