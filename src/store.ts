@@ -129,8 +129,10 @@ export const useStore = create<AppState>()(
       dismissContrast: () => {
         const s = get();
         if (!s.contrast) return;
+        const glyphs = deckGlyphs(s.settings);
+        const active = glyphs.map((g) => s.cards[g] ?? freshCard(g));
         set({
-          current: s.contrast.said,
+          current: pickNext(active, s.reviewCount, s.contrast.shown),
           contrast: null,
           style: randomStyle(s.style, s.settings.maxTilt),
           screen: "card",

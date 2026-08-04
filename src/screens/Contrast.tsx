@@ -2,8 +2,8 @@ import { FONTS, INK } from "../glyphs";
 import { useStore } from "../store";
 
 // Shown right after a mix-up: both glyphs side by side in the SAME font, so
-// the only thing that differs is shape. Tap anywhere to continue — the
-// confused glyph comes up as the very next card.
+// the only thing that differs is shape. Tap anywhere to continue; both
+// glyphs are due again soon but the next card is drawn normally.
 export function Contrast() {
   const contrast = useStore((s) => s.contrast);
   const style = useStore((s) => s.style);
