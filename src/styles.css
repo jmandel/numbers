@@ -4,6 +4,7 @@ body {
   font-family: "Trebuchet MS", Verdana, sans-serif;
   background: #FFF9F0;
   color: #5C3A21;
+  overflow-x: hidden;
   -webkit-user-select: none; user-select: none;
 }
 
@@ -52,11 +53,11 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 .resume { margin-top: 1rem; font-size: .75rem; color: #b3a288; }
 
 /* ---- Card ---- */
-.card-screen { height: 100dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.card-screen { height: 100dvh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 .digit-pane {
   height: 100dvh; width: 100%;
   display: flex; align-items: center; justify-content: center;
-  position: relative; transition: background-color .3s ease;
+  position: relative; overflow: hidden; transition: background-color .3s ease;
 }
 .digit {
   line-height: 1; transition: transform .3s ease, opacity .3s ease;
@@ -105,29 +106,44 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 .contrast-hint { position: absolute; bottom: 1.5rem; font-size: .75rem; color: #8a7358; padding: 0 2rem; text-align: center; }
 
 /* ---- Stats ---- */
-.stats-screen { min-height: 100dvh; padding: 1.5rem; max-width: 44rem; margin: 0 auto; }
-.stats-screen h2 { font-size: 1.5rem; margin-bottom: .25rem; }
+.stats-screen { --pad: 1.5rem; min-height: 100dvh; padding: var(--pad); max-width: 44rem; margin: 0 auto; }
+@media (max-width: 480px) { .stats-screen { --pad: 1rem; } }
+.stats-screen h2 { font-size: 1.5rem; }
 .stats-screen h3 { font-size: 1.125rem; margin-top: 1.5rem; }
 .sub { font-size: .875rem; color: #8a7358; margin-bottom: .75rem; }
 
-.tile-row { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.stats-head {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  background: rgba(255,249,240,.96);
+  margin: calc(-1 * var(--pad)) calc(-1 * var(--pad)) .75rem;
+  padding: .75rem var(--pad);
+  border-bottom: 1px solid #f0e7d8;
+}
+.head-sub { margin-bottom: 0; font-size: .75rem; }
+.stats-head .btn-back { flex-shrink: 0; }
+
+.tile-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: .5rem; margin-bottom: 1rem;
+}
 .tile {
-  flex: 1; min-width: 8rem; background: #fff; border-radius: 1rem; padding: .875rem 1rem;
+  background: #fff; border-radius: 1rem; padding: .75rem .875rem; min-width: 0;
   box-shadow: 0 4px 10px rgba(0,0,0,.06);
 }
-.tile-value { font-size: 1.75rem; font-weight: 800; color: #0b0b0b; }
-.tile-label { font-size: .75rem; color: #52514e; margin-top: .125rem; }
-.tile-detail { font-size: .7rem; color: #898781; }
+.tile-value { font-size: clamp(1.15rem, 5.5vw, 1.75rem); font-weight: 800; color: #0b0b0b; }
+.tile-label { font-size: .7rem; color: #52514e; margin-top: .125rem; }
+.tile-detail { font-size: .65rem; color: #898781; }
 
-.glyph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .75rem; }
+.glyph-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: .5rem; }
 .cell {
-  background: #fff; border-radius: 1rem; padding: .75rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,.06); display: flex; align-items: center; gap: .75rem;
+  background: #fff; border-radius: .875rem; padding: .5rem .625rem; min-width: 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,.06); display: flex; align-items: center; gap: .6rem;
 }
-.cell .big { font-size: 2.25rem; font-weight: 800; width: 3rem; text-align: center; }
-.stars { font-size: 1rem; letter-spacing: 1px; }
+.cell .big { font-size: 1.75rem; font-weight: 800; width: 2.1rem; flex-shrink: 0; text-align: center; }
+.stars { font-size: .75rem; letter-spacing: 0; }
 .stars .off { opacity: .25; }
-.cell .meta { font-size: .7rem; color: #8a7358; }
+.cell .meta { font-size: .65rem; color: #8a7358; white-space: nowrap; }
 
 .chart-card {
   background: #fcfcfb; border-radius: 1rem; padding: 1rem;
@@ -135,15 +151,15 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 }
 .chart-empty { font-size: .8rem; color: #898781; }
 
-.bar-row { display: flex; align-items: center; gap: .6rem; }
+.bar-row { display: flex; align-items: center; gap: .5rem; }
 .bar-label {
-  width: 5.5rem; flex-shrink: 0; font-size: .8rem; font-weight: 700; color: #0b0b0b;
+  flex: 0 0 clamp(3.2rem, 18vw, 5.5rem); font-size: .8rem; font-weight: 700; color: #0b0b0b;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.bar-track { flex: 1; height: 12px; background: #f0efec; border-radius: 4px; overflow: hidden; }
+.bar-track { flex: 1; min-width: 3rem; height: 12px; background: #f0efec; border-radius: 4px; overflow: hidden; }
 .bar-fill { height: 100%; background: #2a78d6; border-radius: 4px; }
-.bar-value { width: 5rem; flex-shrink: 0; font-size: .8rem; color: #0b0b0b; text-align: right; }
-.bar-n { color: #898781; font-size: .7rem; }
+.bar-value { flex-shrink: 0; font-size: .75rem; color: #0b0b0b; text-align: right; white-space: nowrap; }
+.bar-n { color: #898781; font-size: .68rem; }
 
 .pair-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -156,18 +172,23 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 .matrix-card { margin-top: .75rem; }
 .matrix-title { font-size: .8rem; font-weight: 700; color: #0b0b0b; }
 .matrix-sub { font-weight: 400; color: #898781; }
-.matrix-scroll { overflow-x: auto; }
+.matrix-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .matrix { border-collapse: separate; border-spacing: 2px; }
 .matrix th {
-  font-size: .75rem; color: #52514e; font-weight: 700;
-  min-width: 1.9rem; height: 1.9rem; text-align: center;
+  font-size: .7rem; color: #52514e; font-weight: 700;
+  min-width: 1.6rem; height: 1.6rem; text-align: center;
+}
+/* Row labels stay visible while the grid scrolls sideways. */
+.matrix thead th:first-child, .matrix tbody th {
+  position: sticky; left: 0; background: #fcfcfb; z-index: 1;
 }
 .matrix td {
-  min-width: 1.9rem; height: 1.9rem; text-align: center; border-radius: 4px;
-  font-size: .75rem; font-variant-numeric: tabular-nums;
+  min-width: 1.6rem; height: 1.6rem; text-align: center; border-radius: 4px;
+  font-size: .7rem; font-variant-numeric: tabular-nums;
 }
 
-.trend { width: 100%; height: auto; display: block; }
+.trend-wrap { width: 100%; }
+.trend { display: block; }
 
 .prog-actions { display: flex; gap: .75rem; margin-top: 1.5rem; flex-wrap: wrap; }
 .btn-back { background: #1D7AD9; padding: .625rem 1.25rem; border-radius: 999px; font-size: .875rem; }

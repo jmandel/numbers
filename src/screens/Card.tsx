@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FONTS, MAX_BOX, deckGlyphs } from "../glyphs";
 import { useStore } from "../store";
 
@@ -15,14 +15,33 @@ export function CardScreen() {
   const show = useStore((s) => s.show);
 
   const [entered, setEntered] = useState(false);
+  // "slow" = correct answer: digit fades out over the same beat as the
+  // celebration ping. "fast" = wrong answer: quick fade to the next card.
+  const [leaving, setLeaving] = useState<null | "fast" | "slow">(null);
   const [wiggle, setWiggle] = useState(false);
   const [burst, setBurst] = useState(0);
   const graded = useRef(false);
   const scroller = useRef<HTMLDivElement>(null);
+  const digitRef = useRef<HTMLSpanElement>(null);
   const wiggleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Wide glyphs (W, M) at full size can overflow a phone screen, especially
+  // rotated. Measure the laid-out glyph, compute its rotated bounding box,
+  // and scale it down just enough to fit the pane.
+  const [fit, setFit] = useState(1);
+  useLayoutEffect(() => {
+    const el = digitRef.current;
+    const pane = el?.parentElement;
+    if (!el || !pane) return;
+    const rad = (Math.abs(style.tilt) * Math.PI) / 180;
+    const bw = el.offsetWidth * Math.cos(rad) + el.offsetHeight * Math.sin(rad);
+    const bh = el.offsetWidth * Math.sin(rad) + el.offsetHeight * Math.cos(rad);
+    setFit(Math.min(1, (pane.clientWidth - 16) / bw, (pane.clientHeight - 16) / bh));
+  }, [current, style]);
 
   useEffect(() => {
     graded.current = false;
+    setLeaving(null);
     setEntered(false);
     setBurst(0);
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
@@ -42,28 +61,42 @@ export function CardScreen() {
   const doGrade = (correct: boolean, said: string | null = null) => {
     if (graded.current) return;
     graded.current = true;
+    setLeaving(correct ? "slow" : "fast");
     if (correct) setBurst((b) => b + 1);
     scroller.current?.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => grade(correct, said), correct ? 650 : 150);
+    setTimeout(() => grade(correct, said), correct ? 700 : 300);
   };
 
+  const s = (f: number) => (fit * f).toFixed(3);
   const transform = !entered
-    ? `rotate(${style.tilt}deg) scale(0.85)`
-    : wiggle
-      ? `rotate(${-style.tilt}deg) scale(1.06)`
-      : `rotate(${style.tilt}deg) scale(1)`;
+    ? `rotate(${style.tilt}deg) scale(${s(0.85)})`
+    : leaving === "slow"
+      ? `rotate(${style.tilt}deg) scale(${s(1.12)})`
+      : wiggle
+        ? `rotate(${-style.tilt}deg) scale(${s(1.06)})`
+        : `rotate(${style.tilt}deg) scale(${s(1)})`;
+
+  // While a fresh card positions itself, kill the transition so the incoming
+  // glyph never flashes; on a correct answer, fade on the ping's timing.
+  const transition = !entered
+    ? "none"
+    : leaving === "slow"
+      ? "transform .65s ease, opacity .65s ease"
+      : undefined;
 
   return (
     <div className="card-screen" ref={scroller}>
       <div className="digit-pane" style={{ background: style.bg }} onClick={doWiggle}>
         <span
+          ref={digitRef}
           className="digit"
           style={{
             fontFamily: FONTS[style.font],
             color: style.ink,
             fontSize: fontSize(style.scale),
-            opacity: entered ? 1 : 0,
+            opacity: entered && !leaving ? 1 : 0,
             transform,
+            transition,
           }}
         >
           {current}

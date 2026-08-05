@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 // Chart tokens from the validated reference palette (light mode).
 export const CHART = {
@@ -53,13 +53,25 @@ export interface TrendPoint {
   y: number; // 0..1 accuracy
 }
 
-// Rolling-accuracy line with a crosshair + tooltip hover layer.
+// Rolling-accuracy line with a crosshair + tooltip hover layer. Rendered at
+// the container's real pixel width so text stays readable on phones.
 export function TrendLine({ points, window: win }: { points: TrendPoint[]; window: number }) {
   const [hover, setHover] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
 
-  const W = 640;
-  const H = 180;
+  const [W, setW] = useState(600);
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const update = () => setW(Math.max(240, el.clientWidth));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const H = 170;
   const PAD = { l: 34, r: 10, t: 10, b: 22 };
   const iw = W - PAD.l - PAD.r;
   const ih = H - PAD.t - PAD.b;
@@ -67,6 +79,8 @@ export function TrendLine({ points, window: win }: { points: TrendPoint[]; windo
   if (points.length < 2) {
     return <p className="chart-empty">Grade a few more cards to see the trend.</p>;
   }
+
+  const TIP_W = 122;
 
   const x0 = points[0]!.x;
   const x1 = points[points.length - 1]!.x;
@@ -94,9 +108,12 @@ export function TrendLine({ points, window: win }: { points: TrendPoint[]; windo
   const hp = hover !== null ? points[hover] : undefined;
 
   return (
+    <div ref={wrapRef} className="trend-wrap">
     <svg
       ref={svgRef}
       className="trend"
+      width={W}
+      height={H}
       viewBox={`0 0 ${W} ${H}`}
       role="img"
       aria-label={`Rolling accuracy over the last ${win} cards, by review number`}
@@ -122,8 +139,8 @@ export function TrendLine({ points, window: win }: { points: TrendPoint[]; windo
         <g>
           <line x1={sx(hp.x)} x2={sx(hp.x)} y1={PAD.t} y2={H - PAD.b} stroke={CHART.baseline} strokeWidth={1} />
           <circle cx={sx(hp.x)} cy={sy(hp.y)} r={4} fill={CHART.series} stroke="#fff" strokeWidth={2} />
-          <g transform={`translate(${Math.min(Math.max(sx(hp.x) + 8, PAD.l), W - 130)}, ${PAD.t + 4})`}>
-            <rect width={122} height={34} rx={6} fill="#fff" stroke={CHART.grid} />
+          <g transform={`translate(${Math.min(Math.max(sx(hp.x) + 8, PAD.l), W - TIP_W - 8)}, ${PAD.t + 4})`}>
+            <rect width={TIP_W} height={34} rx={6} fill="#fff" stroke={CHART.grid} />
             <text x={8} y={14} fontSize={10.5} fill={CHART.inkSecondary}>
               through card {hp.x}
             </text>
@@ -134,5 +151,6 @@ export function TrendLine({ points, window: win }: { points: TrendPoint[]; windo
         </g>
       )}
     </svg>
+    </div>
   );
 }

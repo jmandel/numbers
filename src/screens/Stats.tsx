@@ -71,18 +71,22 @@ export function Stats() {
     return [...totals.entries()].sort((x, y) => y[1] - x[1]);
   }, [confusions]);
 
-  // Confusion matrix limited to glyphs involved in at least one mix-up.
+  // Confusion matrix over the most-confused glyphs (capped so it stays
+  // readable on a phone).
   const matrix = useMemo(() => {
-    const involved = new Set<string>();
-    for (const key of Object.keys(confusions)) {
+    const totals = new Map<string, number>();
+    for (const [key, n] of Object.entries(confusions)) {
       const [a, b] = key.split(">") as [string, string];
-      involved.add(a);
-      involved.add(b);
+      totals.set(a, (totals.get(a) ?? 0) + n);
+      totals.set(b, (totals.get(b) ?? 0) + n);
     }
-    const order = [...glyphs.filter((g) => involved.has(g)), ...[...involved].filter((g) => !glyphs.includes(g))];
+    const top = new Set(
+      [...totals.entries()].sort((x, y) => y[1] - x[1]).slice(0, 12).map(([g]) => g),
+    );
+    const order = [...glyphs.filter((g) => top.has(g)), ...[...top].filter((g) => !glyphs.includes(g))];
     let max = 0;
     for (const n of Object.values(confusions)) max = Math.max(max, n);
-    return { order, max };
+    return { order, max, truncated: totals.size - top.size };
   }, [confusions, glyphs]);
 
   const byTilt = useMemo(
@@ -112,10 +116,17 @@ export function Stats() {
 
   return (
     <div className="stats-screen">
-      <h2>Progress</h2>
-      <p className="sub">
-        {mastered} of {glyphs.length} at the top level · {reviewCount} cards flipped
-      </p>
+      <div className="stats-head">
+        <div>
+          <h2>Progress</h2>
+          <p className="sub head-sub">
+            {mastered} of {glyphs.length} at the top level · {reviewCount} cards flipped
+          </p>
+        </div>
+        <button className="btn btn-back" onClick={backToCard}>
+          ‹ Cards
+        </button>
+      </div>
 
       <div className="tile-row">
         <StatTile label="Mastered" value={`${mastered}/${glyphs.length}`} />
@@ -146,7 +157,7 @@ export function Stats() {
                 ))}
               </div>
               <div className="meta">
-                {c.seen === 0 ? "not seen yet" : `seen ${c.seen} · ${c.right} right (${Math.round((c.right / c.seen) * 100)}%)`}
+                {c.seen === 0 ? "not seen yet" : `${c.right}/${c.seen} right · ${Math.round((c.right / c.seen) * 100)}%`}
               </div>
             </div>
           </div>
@@ -181,7 +192,11 @@ export function Stats() {
           {matrix.order.length >= 2 && (
             <div className="chart-card matrix-card">
               <div className="matrix-title">
-                Who gets called what <span className="matrix-sub">(row = shown, column = what they said)</span>
+                Who gets called what{" "}
+                <span className="matrix-sub">
+                  (row = shown, column = what they said
+                  {matrix.truncated > 0 ? `; top 12 of ${matrix.truncated + 12} glyphs` : ""})
+                </span>
               </div>
               <div className="matrix-scroll">
                 <table className="matrix">
