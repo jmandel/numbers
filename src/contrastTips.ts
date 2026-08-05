@@ -185,11 +185,6 @@ export function contrastTip(a: string, b: string): string | null {
   const key = a < b ? a + b : b + a;
   const tip = TIPS[key];
   if (tip) return tip;
-  if (a !== b && a.toLowerCase() === b.toLowerCase()) {
-    const upper = a === a.toUpperCase() ? a : b;
-    const lower = a === a.toUpperCase() ? b : a;
-    return `Same letter, two sizes — ${upper} is the capital and ${lower} is the small one.`;
-  }
   const sa = SHAPES[a];
   const sb = SHAPES[b];
   if (sa && sb) return `${a} is ${sa} — ${b} is ${sb}.`;

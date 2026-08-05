@@ -177,7 +177,7 @@ export function CardScreen() {
             <div className="said-label">What did they say?</div>
             <div className="said-row">
               {glyphs
-                .filter((g) => g !== current)
+                .filter((g) => g.toLowerCase() !== current.toLowerCase())
                 .map((g) => (
                   <button key={g} className="chip" onClick={() => resolvePicker(g)}>
                     {g}
@@ -217,7 +217,7 @@ export function CardScreen() {
           <div className="said-label">Said something else? Tap it</div>
           <div className="said-row">
             {glyphs
-              .filter((g) => g !== current)
+              .filter((g) => g.toLowerCase() !== current.toLowerCase())
               .map((g) => (
                 <button key={g} className="chip" onClick={() => doGrade(false, g)}>
                   {g}
