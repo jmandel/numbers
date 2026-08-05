@@ -1,0 +1,200 @@
+// How to tell commonly confused characters apart, phrased for a parent to
+// read aloud while both are on screen. Curated pair tips come first; any
+// other pair of standard glyphs gets a tip composed from the two shape
+// descriptions below, so every digit/letter pair has something concrete.
+// Keys are the two glyphs in ASCII order (digits < capitals < lowercase).
+
+// One noun phrase per glyph, written to fit "X is ___".
+const SHAPES: Record<string, string> = {
+  "0": "a plain round loop",
+  "1": "one straight stick, sometimes with a little flag at the top",
+  "2": "a curvy neck that lands on a flat foot",
+  "3": "two round bumps stacked up, open on the left",
+  "4": "straight lines with a crossbar and pointy corners",
+  "5": "a flat hat on top with a round bump below",
+  "6": "a circle at the bottom with a tail curling up",
+  "7": "a wide roof with a slide going down",
+  "8": "two circles stacked like a snowman",
+  "9": "a circle on top with a stick hanging down",
+  A: "a pointy tent with a crossbar",
+  B: "a straight back with two closed bumps",
+  C: "a circle with its mouth open",
+  D: "a straight back with one big bump",
+  E: "a straight back with three arms",
+  F: "a straight back with two arms",
+  G: "an open circle holding a little shelf",
+  H: "two tall posts with a bar across the middle",
+  I: "a straight post, often with bars on top and bottom",
+  J: "a post with a hook at the bottom",
+  K: "a straight back with two slanted arms",
+  L: "a tall post with a foot sticking out",
+  M: "two posts with a dip in the middle like mountains",
+  N: "two posts joined by one slanted line",
+  O: "a big round circle",
+  P: "a tall stick with a bump at the top",
+  Q: "a big circle with a little tail",
+  R: "a bump on top with a kicking leg",
+  S: "a snake curving both ways",
+  T: "a post with arms stretched across the top",
+  U: "a cup with a round bottom",
+  V: "two lines meeting at a sharp point at the bottom",
+  W: "two V's holding hands",
+  X: "two lines crossing in the middle",
+  Y: "a V standing on a stick",
+  Z: "a zigzag of straight lines",
+  a: "a small circle with a short handle on the right",
+  b: "a tall stick with a circle at the bottom right",
+  c: "a small circle with its mouth open",
+  d: "a circle with a tall stick on the right",
+  e: "a small circle with a bar across its middle",
+  f: "a tall curl with a crossbar",
+  g: "a small circle with a tail curling under like a hook",
+  h: "a tall stick with an arch",
+  i: "a short stick with a dot on top",
+  j: "a short stick with a dot and a tail hooking below",
+  k: "a tall stick with two small slanted arms",
+  l: "one plain tall stick",
+  m: "two round humps",
+  n: "one round hump",
+  o: "a small round circle",
+  p: "a stick hanging below the line with a circle on the right",
+  q: "a circle with a stick hanging straight down",
+  r: "a short stick with a little arm",
+  s: "a small snake curve",
+  t: "a tall stick with a crossbar near the top",
+  u: "a small cup, open at the top",
+  v: "two small lines meeting in a point",
+  w: "two small v's stuck together",
+  x: "two small lines crossing",
+  y: "a small v with a tail hanging down",
+  z: "a small zigzag of straight lines",
+};
+
+const TIPS: Record<string, string> = {
+  // ---- digit vs digit ----
+  "06": "0 is just a loop — 6 has a tail curling up from its loop.",
+  "09": "9 is a loop with a stick hanging down — 0 has no stick.",
+  "08": "0 is one loop — 8 is two loops stacked like a snowman.",
+  "14": "1 is a plain stick — 4 has a crossbar and pointy corners at the top.",
+  "17": "7 wears a wide roof that hangs off to the side — 1 has nothing on top.",
+  "23": "2 has one bump then a flat foot — 3 has two bumps, one on top of the other.",
+  "25": "Mirror-ish twins: 2 curves at the top and sits on a flat foot — 5 wears its flat part as a hat on top.",
+  "27": "2 starts with a curvy neck and lands on a flat foot — 7 is all straight lines, a roof with a slide.",
+  "35": "3 is two round bumps — 5 has a straight flat hat and just one bump.",
+  "38": "8 closes both its loops all the way around — 3 leaves them open on the left, like half of an 8.",
+  "49": "9 has a closed circle on top — 4's top is open, made of straight pointy lines.",
+  "56": "6 curls all the way into a closed loop at the bottom — 5's bump stays open, with a flat hat on top.",
+  "68": "8 has two circles — 6 has one circle with a tail standing up.",
+  "69": "Upside-down twins! 6 holds its circle at the bottom — 9 holds its circle at the top. Flip one over and you get the other.",
+  "79": "9 has a circle up top — 7 is all straight lines.",
+
+  // ---- digit vs capital ----
+  "0D": "D has a flat straight back — 0 is round all the way around.",
+  "0O": "Almost twins — the number 0 is usually a bit skinnier than the letter O.",
+  "0Q": "Q is a circle with a little tail poking out — 0 has no tail.",
+  "1I": "Capital I often wears little bars on top and bottom — 1 is one stick, sometimes with a small flag at the top.",
+  "2S": "S curves both ways like a snake — 2 curves at the top, then sits down flat.",
+  "2Z": "Z is all straight zigzag lines — 2 starts with a round curve.",
+  "3B": "B closes its two bumps against a straight back — 3's bumps stay open with no back.",
+  "3E": "They face opposite ways: 3 is two round bumps — E is straight lines with arms sticking out the other side.",
+  "4A": "Both have a crossbar — A comes to a point like a tent, 4 stays open or square at the top.",
+  "5S": "S is curvy from top to bottom — 5 has a straight flat hat and a straight back.",
+  "6G": "G is a big open C holding a little shelf — 6 curls into a fully closed circle at the bottom.",
+  "7F": "F has two arms sticking out the same side — 7 is one roof with a slide.",
+  "7L": "They hold their lines at opposite ends: 7's flat part is on top — L's flat part is a foot at the bottom.",
+  "7T": "T balances its roof right in the middle — 7's roof hangs off to one side and slides down crooked.",
+  "8B": "B has a straight back like a soldier — 8 is two round circles with no straight lines at all.",
+  "8S": "8 closes both its loops all the way — S stays open, sliding through like a snake.",
+  "9P": "P holds its circle up high on a tall stick — 9's stick hangs down below its circle.",
+
+  // ---- digit vs lowercase ----
+  "0o": "Close twins — the number 0 stands tall and skinny, small o is little and round.",
+  "1i": "Small i is short with a dot floating on top — 1 is tall with no dot.",
+  "1l": "Nearly identical! 1 often has a little flag at the top — small l is a perfectly plain stick.",
+  "2z": "Small z is straight zigzag lines — 2 starts with a round curve.",
+  "5s": "Small s is one smooth snake curve — 5 has a flat hat and a straight back.",
+  "6b": "Small b stands on a tall straight back — 6 leans, with a tail curving over the top of its circle.",
+  "9a": "Small a keeps its stick short and snug against the circle — 9's stick drops down long.",
+  "9g": "Both are a circle with a tail — small g's tail curls back like a fishhook, 9's goes down straighter.",
+  "9q": "Very close twins — look for the little flick at the bottom of q's tail; 9's stick is plain.",
+
+  // ---- capital vs capital ----
+  "AV": "Upside-down twins: A points up and wears a crossbar — V points down with no bar.",
+  "BD": "B has two bumps — D is one big bump.",
+  "BE": "B closes its bumps into round loops — E's arms stay open with no loops.",
+  "BP": "B has two bumps — P only kept the top one.",
+  "BR": "B closes its bottom bump — R kicks out a straight leg instead.",
+  "CG": "G is a C holding a little shelf inside its mouth.",
+  "CO": "C is an O with its mouth open.",
+  "DO": "D has a flat straight back — O is round all the way around.",
+  "EF": "E has three arms — F has two; the bottom one fell off.",
+  "FP": "P's top is a closed round bump — F's top is open arms with nothing closed.",
+  "FT": "T stretches its arms across the top — F's arms stick out to one side.",
+  "HK": "H's bar goes straight across between the posts — K's arms slant into its back like a kick.",
+  "HN": "H's bar goes straight across the middle — N's line slants from the top of one post to the bottom of the other.",
+  "IJ": "J has a hook at the bottom — I goes straight down.",
+  "IL": "L sticks a foot out at the bottom — I stands straight.",
+  "IT": "T stretches its arms across the top — I is a plain post.",
+  "JL": "J curves into a hook at the bottom — L makes a sharp square corner the other way.",
+  "KX": "X crosses its lines right in the middle — K leans its arms against a straight back.",
+  "MN": "M has two mountain peaks — N has just one slanted line between its posts.",
+  "MW": "Upside-down twins: M dips down in the middle like mountains — W pops up in the middle like waves.",
+  "NZ": "Sideways twins! Tip N over on its side and you get Z.",
+  "OQ": "Q is an O with a little tail poking out.",
+  "PR": "P is a stick with a bump — R adds a little kicking leg under the bump.",
+  "SZ": "S is curvy like a snake — Z makes the same zigzag out of straight lines.",
+  "UV": "U has a round bottom like a cup — V comes down to a sharp point.",
+  "UY": "Y is a V standing on a stick — U is one round cup with no stick.",
+  "VW": "W is two V's holding hands.",
+  "VY": "Y is a V standing on a little stick — V sits right on the ground.",
+
+  // ---- lowercase vs lowercase ----
+  "ad": "Both are a circle with a stick on the right — d's stick is tall, a's is short and snug.",
+  "ao": "a is an o with a little handle on its right side.",
+  "au": "u is open at the top like a cup — a closes its circle and adds a handle.",
+  "bd": "Mirror twins! b's stick is on the left of its circle — d's stick is on the right. b comes first and its tummy points forward.",
+  "bh": "b closes its circle all the way — h leaves it open, like an archway.",
+  "bp": "b's stick stands tall above the line — p's stick hangs down below it.",
+  "bq": "Upside-down twins: spin b all the way around and you get q.",
+  "ce": "e is a c with a little bar across its middle.",
+  "co": "c is an o with its mouth open.",
+  "dp": "Upside-down twins: spin d all the way around and you get p.",
+  "dq": "d's stick stands tall above the line — q's stick hangs down below it.",
+  "ft": "f has a curly top with its bar up high — t stands straight with its bar near the top.",
+  "gp": "p's circle sits to the right of its stick — g's circle is on the left, with a tail that curls.",
+  "gq": "Both hang a tail below the line — g's tail curls back like a monkey's tail, q's goes straight down.",
+  "gy": "g has a round circle for a head — y is made of straight lines meeting at a point.",
+  "hn": "h stands tall — it's an n with a long neck.",
+  "ij": "j is an i that grew a tail hooking below the line.",
+  "il": "i is short with a dot on top — l is tall with no dot.",
+  "kx": "x crosses its lines in the middle — k leans its arms against a tall stick.",
+  "lt": "t wears a crossbar near the top — l is a plain tall stick.",
+  "mn": "m has two humps — n has one.",
+  "mw": "m is round humps standing up — w is pointy zigzags. Flip one over to get the other.",
+  "nr": "n closes down into an arch — r stops halfway, just a stick with a little arm.",
+  "nu": "Upside-down twins: n's arch opens down — u's cup opens up.",
+  "nz": "Sideways twins — tip n on its side and you get z.",
+  "sz": "s is one smooth curve — z is the same zigzag made of straight lines.",
+  "uv": "u has a round bottom — v comes to a sharp point.",
+  "uy": "y is a u with a tail hanging below the line.",
+  "vw": "w is two v's stuck together.",
+  "vy": "y is a v with a tail hanging down below the line.",
+};
+
+export function contrastTip(a: string, b: string): string | null {
+  const key = a < b ? a + b : b + a;
+  const tip = TIPS[key];
+  if (tip) return tip;
+  if (a !== b && a.toLowerCase() === b.toLowerCase()) {
+    const upper = a === a.toUpperCase() ? a : b;
+    const lower = a === a.toUpperCase() ? b : a;
+    return `Same letter, two sizes — ${upper} is the capital and ${lower} is the small one.`;
+  }
+  const sa = SHAPES[a];
+  const sb = SHAPES[b];
+  if (sa && sb) return `${a} is ${sa} — ${b} is ${sb}.`;
+  return null;
+}
+
+export const TIP_KEYS = Object.keys(TIPS);
+export const SHAPE_KEYS = Object.keys(SHAPES);
