@@ -22,8 +22,7 @@ export function Contrast() {
         <span style={{ color: saidInk }}>{contrast.said}</span>
       </div>
       <p className="contrast-hint">
-        They said {contrast.said} — same font, side by side. Point out the
-        difference, then tap anywhere.
+        They said {contrast.said}. Point out the difference, then tap to continue.
       </p>
     </div>
   );

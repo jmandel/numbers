@@ -111,10 +111,10 @@ export function CardScreen() {
       <div className="controls">
         <div className="grade-row">
           <button className="btn btn-grade btn-again" onClick={() => doGrade(false)}>
-            🔁 Practice more
+            Practice more
           </button>
           <button className="btn btn-grade btn-good" onClick={() => doGrade(true)}>
-            ⭐ Got it!
+            Got it
           </button>
         </div>
 
@@ -131,7 +131,7 @@ export function CardScreen() {
         </div>
 
         <div className="said-wrap">
-          <div className="said-label">Said something different? Tap what they said:</div>
+          <div className="said-label">Said something else? Tap it</div>
           <div className="said-row">
             {glyphs
               .filter((g) => g !== current)
@@ -146,7 +146,6 @@ export function CardScreen() {
         <button className="icon-btn" aria-label="Show progress" onClick={() => show("stats")}>
           📊
         </button>
-        <p className="hint">Grading jumps to the next card automatically</p>
       </div>
     </div>
   );

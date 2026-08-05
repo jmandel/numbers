@@ -37,22 +37,14 @@ export function Intro() {
       <h1>Number &amp; Letter Cards</h1>
       <div className="intro-copy">
         <p>
-          One big character fills the screen — ask your learner what it is. No
-          sounds, no hints; they do the naming.
+          One big character at a time. Ask your learner to name it, then scroll
+          down to grade the answer.
         </p>
-        <p>
-          When they answer, <strong>scroll down</strong> to find the grading
-          buttons — they can't be reached by mashing.
-        </p>
-        <p>
-          If they name the <em>wrong</em> one, tap what they said — you get both
-          side by side in the same font to point out the difference.
-        </p>
-        <p>Cards they know return less often; tricky ones come back sooner.</p>
+        <p>Mix-ups get a side-by-side look, and tricky cards come back sooner.</p>
       </div>
 
       <div className="setup">
-        <div className="setup-label">Tap to build the deck — mix and match</div>
+        <div className="setup-label">Deck</div>
         <div className="deck-row">
           {SETS.map(({ key, sample, label }) => {
             const on = settings[key];
@@ -72,15 +64,16 @@ export function Intro() {
         </div>
         <input
           className="custom-input"
-          placeholder="Extra characters, e.g. b d p q ? ! ½"
+          placeholder="Add your own: b d p q"
           value={settings.customGlyphs}
           onChange={(e) => setSettings({ customGlyphs: e.target.value })}
         />
         <div className="deck-summary">
-          {glyphs.length > 0 ? `${glyphs.length} cards in the deck` : "Pick at least one set to start"}
+          {glyphs.length > 0 ? `${glyphs.length} cards` : "Pick at least one set to start"}
         </div>
-        <div className="setup-label">
-          Tilt cards up to <strong>{settings.maxTilt}°</strong>
+        <div className="setup-row">
+          <span className="setup-label">Tilt</span>
+          <span className="setup-value">{settings.maxTilt === 0 ? "off" : `±${settings.maxTilt}°`}</span>
         </div>
         <input
           className="tilt-slider"
@@ -91,9 +84,6 @@ export function Intro() {
           value={settings.maxTilt}
           onChange={(e) => setSettings({ maxTilt: Number(e.target.value) })}
         />
-        <div className="tilt-hint">
-          Rotated cards teach the shape, not the pose. 0° means always upright.
-        </div>
       </div>
 
       <button className="btn btn-start" onClick={start} disabled={glyphs.length === 0}>
@@ -101,8 +91,7 @@ export function Intro() {
       </button>
       {reviewCount > 0 && (
         <p className="resume">
-          Picking up where you left off · {mastered}/{glyphs.length} mastered ·{" "}
-          {reviewCount} cards flipped
+          {mastered}/{glyphs.length} mastered · {reviewCount} flips
         </p>
       )}
     </div>

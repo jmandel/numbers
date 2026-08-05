@@ -126,13 +126,8 @@ export function Stats() {
   return (
     <div className="stats-screen">
       <div className="stats-head">
-        <div>
-          <h2>Progress</h2>
-          <p className="sub head-sub">
-            {mastered} of {glyphs.length} at the top level · {reviewCount} cards flipped
-          </p>
-        </div>
-        <button className="btn btn-back" onClick={backToCard}>
+        <h2>Progress</h2>
+        <button className="btn-ghost" onClick={backToCard}>
           ‹ Cards
         </button>
       </div>
@@ -175,12 +170,12 @@ export function Stats() {
           );
         })}
       </div>
-      <p className="gmap-key">Shade = practice level (darker is closer to mastered) · label = accuracy</p>
+      <p className="gmap-key">Darker = closer to mastered · % = accuracy</p>
 
       {trickiest.length > 0 && (
         <section>
-          <h3>Trickiest right now</h3>
-          <p className="sub">Lowest accuracy among cards with at least one miss</p>
+          <h3>Trickiest</h3>
+          <p className="sub">Lowest accuracy first</p>
           <div className="chart-card">
             {trickiest.map((c) => (
               <BarRow key={c.glyph} label={c.glyph} pct={c.right / c.seen} n={c.seen} />
@@ -192,7 +187,7 @@ export function Stats() {
       {pairs.length > 0 && (
         <section>
           <h3>Mix-ups</h3>
-          <p className="sub">Pairs that get confused — each mix-up triggers a side-by-side</p>
+          <p className="sub">Most-confused pairs</p>
           <div className="chart-card">
             {pairs.slice(0, 6).map(([pk, n]) => (
               <div className="pair-row" key={pk}>
@@ -205,11 +200,8 @@ export function Stats() {
           {matrix.order.length >= 2 && (
             <div className="chart-card matrix-card">
               <div className="matrix-title">
-                Who gets called what{" "}
-                <span className="matrix-sub">
-                  (row = shown, column = what they said
-                  {matrix.truncated > 0 ? `; top 12 of ${matrix.truncated + 12} glyphs` : ""})
-                </span>
+                Shown → what they said
+                {matrix.truncated > 0 && <span className="matrix-sub"> · top 12</span>}
               </div>
               <div className="matrix-scroll">
                 <table className="matrix">
@@ -250,8 +242,8 @@ export function Stats() {
 
       {trend.length >= 2 && (
         <section>
-          <h3>Accuracy over time</h3>
-          <p className="sub">Rolling share correct over the last {TREND_WINDOW} cards</p>
+          <h3>Accuracy</h3>
+          <p className="sub">Rolling, last {TREND_WINDOW} cards</p>
           <div className="chart-card">
             <TrendLine points={trend} window={TREND_WINDOW} />
           </div>
@@ -261,8 +253,8 @@ export function Stats() {
       <div className="duo">
         {byTilt.length >= 2 && (
           <section>
-            <h3>Does rotation matter?</h3>
-            <p className="sub">Accuracy by how tilted the card was</p>
+            <h3>Rotation</h3>
+            <p className="sub">Accuracy by tilt</p>
             <div className="chart-card">
               {byTilt.map((b) => (
                 <BarRow key={b.label} label={b.label} pct={b.right / b.n} n={b.n} />
@@ -273,8 +265,8 @@ export function Stats() {
 
         {byFont.length >= 2 && totalSeen >= 20 && (
           <section>
-            <h3>Does the font matter?</h3>
-            <p className="sub">Accuracy by typeface, hardest first</p>
+            <h3>Fonts</h3>
+            <p className="sub">Hardest first</p>
             <div className="chart-card">
               {byFont.map(([name, { n, right }]) => (
                 <BarRow key={name} label={name} pct={right / n} n={n} />
@@ -285,11 +277,8 @@ export function Stats() {
       </div>
 
       <div className="prog-actions">
-        <button className="btn btn-back" onClick={backToCard}>
-          Back to cards
-        </button>
         <button
-          className="btn btn-deck"
+          className="btn-quiet"
           onClick={() => {
             // Pop the practice history entry so Back from the landing
             // screen behaves normally; popstate switches the screen.
@@ -300,7 +289,7 @@ export function Stats() {
           Change deck
         </button>
         <button
-          className="btn btn-reset"
+          className="btn-quiet btn-danger"
           onClick={() => {
             if (window.confirm("Erase all progress and statistics?")) resetProgress();
           }}
