@@ -1,3 +1,4 @@
+import { contrastTip } from "../contrastTips";
 import { FONTS, INK } from "../glyphs";
 import { useStore } from "../store";
 
@@ -11,18 +12,22 @@ export function Contrast() {
 
   if (!contrast) return null;
   const saidInk = INK[(INK.indexOf(style.ink) + 4) % INK.length];
+  const tip = contrastTip(contrast.shown, contrast.said);
 
   return (
     <div className="contrast-screen" style={{ background: style.bg }} onClick={dismiss}>
       <div
         className="pair"
-        style={{ fontFamily: FONTS[style.font], fontSize: "clamp(120px, 38vmin, 400px)" }}
+        style={{ fontFamily: FONTS[style.font], fontSize: "clamp(110px, 34vmin, 360px)" }}
       >
         <span style={{ color: style.ink }}>{contrast.shown}</span>
         <span style={{ color: saidInk }}>{contrast.said}</span>
       </div>
+      {tip && <p className="contrast-tip">{tip}</p>}
       <p className="contrast-hint">
-        They said {contrast.said}. Point out the difference, then tap to continue.
+        {tip
+          ? "Tap to continue"
+          : `They said ${contrast.said}. Point out the difference, then tap to continue.`}
       </p>
     </div>
   );

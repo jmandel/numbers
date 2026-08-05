@@ -152,6 +152,10 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 }
 .pair { display: flex; align-items: center; justify-content: center; gap: 6vmin; line-height: 1; }
 .pair span { text-shadow: 0 6px 0 rgba(0,0,0,.06); }
+.contrast-tip {
+  max-width: 26rem; margin-top: 2rem; padding: 0 1.75rem; text-align: center;
+  font-size: 1.05rem; line-height: 1.45; font-weight: 700; color: #5C3A21;
+}
 .contrast-hint { position: absolute; bottom: 1.5rem; font-size: .75rem; color: #8a7358; padding: 0 2rem; text-align: center; }
 
 /* ---- Stats ---- */
