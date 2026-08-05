@@ -93,9 +93,7 @@ export function Intro() {
           <span className="toggle-label">Quick grading</span>
           <span className="toggle-check">{settings.quickInput ? "✓" : ""}</span>
         </button>
-        {settings.quickInput && (
-          <div className="deck-summary">Tap or flick the card — right: got it, left: practice</div>
-        )}
+        <div className="deck-summary">Grade by tapping or flicking the card — right: got it, left: practice</div>
       </div>
 
       <button className="btn btn-start" onClick={start} disabled={glyphs.length === 0}>
