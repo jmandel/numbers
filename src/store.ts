@@ -42,7 +42,7 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
-      settings: { digits: true, upper: false, lower: false, customGlyphs: "", maxTilt: 15 },
+      settings: { digits: true, upper: false, lower: false, customGlyphs: "", maxTilt: 15, quickInput: false },
       cards: {},
       reviewCount: 0,
       confusions: {},
@@ -177,8 +177,9 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "glyph-cards-v1",
-      version: 1,
-      // v0 stored a single deckId; v1 stores independent set toggles.
+      version: 2,
+      // v0 stored a single deckId; v1 stores independent set toggles;
+      // v2 adds quickInput.
       migrate: (persisted: unknown) => {
         const p = persisted as { settings?: Record<string, unknown> };
         const s = p?.settings;
@@ -191,6 +192,9 @@ export const useStore = create<AppState>()(
             customGlyphs: deckId === "custom" ? String(s.customGlyphs ?? "") : "",
             maxTilt: typeof s.maxTilt === "number" ? s.maxTilt : 15,
           };
+        }
+        if (p.settings && typeof p.settings.quickInput !== "boolean") {
+          p.settings.quickInput = false;
         }
         return p as unknown as Persisted;
       },

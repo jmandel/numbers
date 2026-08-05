@@ -30,4 +30,5 @@ export interface Settings {
   lower: boolean;
   customGlyphs: string; // extra characters appended to the deck
   maxTilt: number; // degrees, 0..30
+  quickInput: boolean; // tap/flick left-right grading on the card itself
 }

@@ -97,6 +97,28 @@ h1 { font-size: 2rem; margin-bottom: .75rem; }
 @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(2); opacity: 0; } }
 .ping { animation: ping .7s cubic-bezier(0,0,.2,1) forwards; }
 
+/* Quick-grading affordances: faint corner badges that light up mid-drag. */
+.qhint {
+  position: absolute; bottom: 1.25rem; width: 2.4rem; height: 2.4rem;
+  border-radius: 999px; background: #fff; display: flex; align-items: center;
+  justify-content: center; font-size: 1.1rem; font-weight: 800; opacity: .35;
+  transition: opacity .15s ease, transform .15s ease; pointer-events: none;
+}
+.qhint-left { left: 1.25rem; color: #F77F00; }
+.qhint-right { right: 1.25rem; color: #2A9D3F; }
+.qhint-on { opacity: 1; transform: scale(1.25); }
+
+.picker {
+  position: fixed; inset: 0; z-index: 20; background: rgba(92,58,33,.35);
+  display: flex; align-items: flex-end;
+}
+.picker-sheet {
+  background: #fff; width: 100%; max-height: 70dvh; overflow-y: auto;
+  border-radius: 1.25rem 1.25rem 0 0;
+  padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; gap: .875rem; align-items: center;
+}
+
 .controls {
   min-height: 45dvh; padding: 2rem 1.25rem 2.5rem;
   display: flex; flex-direction: column; align-items: center; gap: 1rem;

@@ -84,6 +84,18 @@ export function Intro() {
           value={settings.maxTilt}
           onChange={(e) => setSettings({ maxTilt: Number(e.target.value) })}
         />
+        <button
+          className={`toggle ${settings.quickInput ? "toggle-on" : ""}`}
+          aria-pressed={settings.quickInput}
+          onClick={() => setSettings({ quickInput: !settings.quickInput })}
+        >
+          <span className="toggle-sample">⇄</span>
+          <span className="toggle-label">Quick grading</span>
+          <span className="toggle-check">{settings.quickInput ? "✓" : ""}</span>
+        </button>
+        {settings.quickInput && (
+          <div className="deck-summary">Tap or flick the card — right: got it, left: practice</div>
+        )}
       </div>
 
       <button className="btn btn-start" onClick={start} disabled={glyphs.length === 0}>

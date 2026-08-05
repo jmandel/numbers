@@ -20,6 +20,10 @@ export function CardScreen() {
   const [leaving, setLeaving] = useState<null | "fast" | "slow">(null);
   const [wiggle, setWiggle] = useState(false);
   const [burst, setBurst] = useState(0);
+  // Quick-grading state: horizontal drag offset and the said-picker sheet.
+  const [picker, setPicker] = useState(false);
+  const [dragX, setDragX] = useState(0);
+  const dragStart = useRef<{ x: number; y: number } | null>(null);
   const graded = useRef(false);
   const scroller = useRef<HTMLDivElement>(null);
   const digitRef = useRef<HTMLSpanElement>(null);
@@ -44,6 +48,8 @@ export function CardScreen() {
     setLeaving(null);
     setEntered(false);
     setBurst(0);
+    setPicker(false);
+    setDragX(0);
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => setEntered(true)));
     return () => cancelAnimationFrame(raf);
   }, [current, style]);
@@ -67,18 +73,58 @@ export function CardScreen() {
     setTimeout(() => grade(correct, said), correct ? 700 : 300);
   };
 
+  const quick = settings.quickInput;
+  const FLICK = 70; // px of horizontal drag that commits a grade
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (!quick || graded.current || picker) return;
+    dragStart.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragStart.current) return;
+    setDragX(e.clientX - dragStart.current.x);
+  };
+  const onPointerEnd = (e: React.PointerEvent) => {
+    const start = dragStart.current;
+    dragStart.current = null;
+    setDragX(0);
+    if (!start || graded.current || picker) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dx) >= FLICK && Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0) doGrade(true);
+      else setPicker(true);
+      return;
+    }
+    // A near-stationary touch counts as a tap: side decides the grade.
+    if (Math.abs(dx) < 12 && Math.abs(dy) < 12) {
+      const pane = e.currentTarget as HTMLElement;
+      const r = pane.getBoundingClientRect();
+      if (e.clientX > r.left + r.width / 2) doGrade(true);
+      else setPicker(true);
+    }
+  };
+  const resolvePicker = (said: string | null) => {
+    setPicker(false);
+    doGrade(false, said);
+  };
+
   const s = (f: number) => (fit * f).toFixed(3);
-  const transform = !entered
-    ? `rotate(${style.tilt}deg) scale(${s(0.85)})`
-    : leaving === "slow"
-      ? `rotate(${style.tilt}deg) scale(${s(1.12)})`
-      : wiggle
-        ? `rotate(${-style.tilt}deg) scale(${s(1.06)})`
-        : `rotate(${style.tilt}deg) scale(${s(1)})`;
+  const drag = dragX ? `translateX(${Math.round(dragX * 0.4)}px) ` : "";
+  const transform =
+    drag +
+    (!entered
+      ? `rotate(${style.tilt}deg) scale(${s(0.85)})`
+      : leaving === "slow"
+        ? `rotate(${style.tilt}deg) scale(${s(1.12)})`
+        : wiggle
+          ? `rotate(${-style.tilt}deg) scale(${s(1.06)})`
+          : `rotate(${style.tilt}deg) scale(${s(1)})`);
 
   // While a fresh card positions itself, kill the transition so the incoming
-  // glyph never flashes; on a correct answer, fade on the ping's timing.
-  const transition = !entered
+  // glyph never flashes; while dragging, track the finger with no lag; on a
+  // correct answer, fade on the ping's timing.
+  const transition = !entered || dragX
     ? "none"
     : leaving === "slow"
       ? "transform .65s ease, opacity .65s ease"
@@ -86,7 +132,18 @@ export function CardScreen() {
 
   return (
     <div className="card-screen" ref={scroller}>
-      <div className="digit-pane" style={{ background: style.bg }} onClick={doWiggle}>
+      <div
+        className="digit-pane"
+        style={{ background: style.bg, touchAction: quick ? "pan-y" : undefined }}
+        onClick={quick ? undefined : doWiggle}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={() => {
+          dragStart.current = null;
+          setDragX(0);
+        }}
+      >
         <span
           ref={digitRef}
           className="digit"
@@ -106,7 +163,33 @@ export function CardScreen() {
             <span className="ping">🎉</span>
           </div>
         )}
+        {quick && (
+          <>
+            <div className={`qhint qhint-left ${dragX < -40 ? "qhint-on" : ""}`}>✗</div>
+            <div className={`qhint qhint-right ${dragX > 40 ? "qhint-on" : ""}`}>✓</div>
+          </>
+        )}
       </div>
+
+      {picker && (
+        <div className="picker" onClick={() => resolvePicker(null)}>
+          <div className="picker-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="said-label">What did they say?</div>
+            <div className="said-row">
+              {glyphs
+                .filter((g) => g !== current)
+                .map((g) => (
+                  <button key={g} className="chip" onClick={() => resolvePicker(g)}>
+                    {g}
+                  </button>
+                ))}
+            </div>
+            <button className="btn-ghost" onClick={() => resolvePicker(null)}>
+              Skip
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="controls">
         <div className="grade-row">

@@ -14,7 +14,10 @@ is a five-box Leitner system: cards the child knows come back less often, and
 misses reset to the front of the line. When the child names the wrong
 character, tapping what they said records the confusion and shows both
 characters side by side in the same font so the difference can be pointed out;
-both characters in the pair come back soon while the contrast is fresh.
+both characters in the pair come back soon while the contrast is fresh. An
+optional quick-grading mode grades from the card itself: tap or flick right
+for correct, left for wrong, then a one-tap sheet records what was said (or
+skip it).
 
 Every graded card is logged with its font, tilt, and answer time, and the stats
 screen turns that log into per-character mastery and accuracy, the most
