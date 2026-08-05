@@ -7,6 +7,14 @@ export type Screen = "intro" | "card" | "contrast" | "stats";
 
 const LOG_CAP = 10000;
 
+interface Persisted {
+  settings: Settings;
+  cards: Record<string, CardStat>;
+  reviewCount: number;
+  confusions: Record<string, number>;
+  log: ReviewEvent[];
+}
+
 interface AppState {
   settings: Settings;
   // Stats are keyed by glyph and survive deck changes, so switching between
@@ -34,7 +42,7 @@ interface AppState {
 export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
-      settings: { deckId: "digits", customGlyphs: "", maxTilt: 15 },
+      settings: { digits: true, upper: false, lower: false, customGlyphs: "", maxTilt: 15 },
       cards: {},
       reviewCount: 0,
       confusions: {},
@@ -169,7 +177,24 @@ export const useStore = create<AppState>()(
     }),
     {
       name: "glyph-cards-v1",
-      partialize: (s) => ({
+      version: 1,
+      // v0 stored a single deckId; v1 stores independent set toggles.
+      migrate: (persisted: unknown) => {
+        const p = persisted as { settings?: Record<string, unknown> };
+        const s = p?.settings;
+        if (s && typeof s.deckId === "string") {
+          const deckId = s.deckId;
+          p.settings = {
+            digits: deckId === "digits" || deckId === "mixed",
+            upper: deckId === "upper" || deckId === "mixed",
+            lower: deckId === "lower",
+            customGlyphs: deckId === "custom" ? String(s.customGlyphs ?? "") : "",
+            maxTilt: typeof s.maxTilt === "number" ? s.maxTilt : 15,
+          };
+        }
+        return p as unknown as Persisted;
+      },
+      partialize: (s): Persisted => ({
         settings: s.settings,
         cards: s.cards,
         reviewCount: s.reviewCount,

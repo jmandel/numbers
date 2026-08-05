@@ -1,8 +1,11 @@
-import { DECKS, FONTS, INK, MAX_BOX, deckGlyphs } from "../glyphs";
+import { FONTS, INK, MAX_BOX, deckGlyphs } from "../glyphs";
 import { useStore } from "../store";
-import type { DeckId } from "../types";
 
-const DECK_ORDER: DeckId[] = ["digits", "upper", "lower", "mixed", "custom"];
+const SETS: { key: "digits" | "upper" | "lower"; sample: string; label: string }[] = [
+  { key: "digits", sample: "123", label: "Numbers" },
+  { key: "upper", sample: "ABC", label: "Capitals" },
+  { key: "lower", sample: "abc", label: "Small letters" },
+];
 
 export function Intro() {
   const settings = useStore((s) => s.settings);
@@ -49,26 +52,33 @@ export function Intro() {
       </div>
 
       <div className="setup">
-        <div className="setup-label">What to practice</div>
+        <div className="setup-label">Tap to build the deck — mix and match</div>
         <div className="deck-row">
-          {DECK_ORDER.map((id) => (
-            <button
-              key={id}
-              className={`seg ${settings.deckId === id ? "seg-on" : ""}`}
-              onClick={() => setSettings({ deckId: id })}
-            >
-              {id === "custom" ? "Custom" : DECKS[id].label}
-            </button>
-          ))}
+          {SETS.map(({ key, sample, label }) => {
+            const on = settings[key];
+            return (
+              <button
+                key={key}
+                className={`toggle ${on ? "toggle-on" : ""}`}
+                aria-pressed={on}
+                onClick={() => setSettings({ [key]: !on })}
+              >
+                <span className="toggle-sample">{sample}</span>
+                <span className="toggle-label">{label}</span>
+                <span className="toggle-check">{on ? "✓" : ""}</span>
+              </button>
+            );
+          })}
         </div>
-        {settings.deckId === "custom" && (
-          <input
-            className="custom-input"
-            placeholder="Type the characters to practice, e.g. b d p q 6 9"
-            value={settings.customGlyphs}
-            onChange={(e) => setSettings({ customGlyphs: e.target.value })}
-          />
-        )}
+        <input
+          className="custom-input"
+          placeholder="Extra characters, e.g. b d p q ? ! ½"
+          value={settings.customGlyphs}
+          onChange={(e) => setSettings({ customGlyphs: e.target.value })}
+        />
+        <div className="deck-summary">
+          {glyphs.length > 0 ? `${glyphs.length} cards in the deck` : "Pick at least one set to start"}
+        </div>
         <div className="setup-label">
           Tilt cards up to <strong>{settings.maxTilt}°</strong>
         </div>

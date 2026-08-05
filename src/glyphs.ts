@@ -1,4 +1,4 @@
-import type { CardStat, CardStyle, DeckId, Settings } from "./types";
+import type { CardStat, CardStyle, Settings } from "./types";
 
 export const FONTS = [
   "'Arial Black', Arial, sans-serif",
@@ -39,15 +39,12 @@ const DIGITS = "0123456789";
 const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWER = "abcdefghijklmnopqrstuvwxyz";
 
-export const DECKS: Record<Exclude<DeckId, "custom">, { label: string; glyphs: string }> = {
-  digits: { label: "Numbers 0–9", glyphs: DIGITS },
-  upper: { label: "Capital letters", glyphs: UPPER },
-  lower: { label: "Small letters", glyphs: LOWER },
-  mixed: { label: "Numbers + capitals", glyphs: DIGITS + UPPER },
-};
-
 export function deckGlyphs(settings: Settings): string[] {
-  const raw = settings.deckId === "custom" ? settings.customGlyphs : DECKS[settings.deckId].glyphs;
+  let raw = "";
+  if (settings.digits) raw += DIGITS;
+  if (settings.upper) raw += UPPER;
+  if (settings.lower) raw += LOWER;
+  raw += settings.customGlyphs;
   const seen = new Set<string>();
   const out: string[] = [];
   for (const ch of raw) {

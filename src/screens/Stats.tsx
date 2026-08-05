@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { FONT_NAMES, INK, MAX_BOX, deckGlyphs } from "../glyphs";
+import { FONT_NAMES, MAX_BOX, deckGlyphs } from "../glyphs";
 import { useStore } from "../store";
 import type { ReviewEvent } from "../types";
 import { BarRow, StatTile, TrendLine, seqBlue, type TrendPoint } from "./charts";
@@ -10,6 +10,10 @@ const TILT_BUCKETS = [
   { label: "10–20°", min: 10, max: 20 },
   { label: "20–30°", min: 20, max: 31 },
 ];
+
+// Ordinal steps of the sequential blue ramp: Leitner levels 1..5.
+const LEVEL_BG = ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"];
+const LEVEL_INK = ["#0b0b0b", "#0b0b0b", "#ffffff", "#ffffff", "#ffffff"];
 
 function median(xs: number[]): number {
   if (!xs.length) return 0;
@@ -46,8 +50,13 @@ export function Stats() {
   const glyphs = deckGlyphs(settings);
   const active = glyphs.map((g) => cards[g] ?? { glyph: g, box: 1, nextDue: 0, seen: 0, right: 0 });
   const mastered = active.filter((c) => c.box === MAX_BOX).length;
+  const dueNow = active.filter((c) => c.nextDue <= reviewCount).length;
   const totalSeen = log.length;
   const totalRight = log.filter((e) => e.correct).length;
+  const last20 = log.slice(-20);
+  const midnight = new Date();
+  midnight.setHours(0, 0, 0, 0);
+  const flipsToday = log.filter((e) => e.t >= midnight.getTime()).length;
 
   const trend: TrendPoint[] = useMemo(() => {
     const pts: TrendPoint[] = [];
@@ -130,39 +139,43 @@ export function Stats() {
 
       <div className="tile-row">
         <StatTile label="Mastered" value={`${mastered}/${glyphs.length}`} />
+        <StatTile label="Due now" value={`${dueNow}`} />
         <StatTile
-          label="Overall accuracy"
+          label="Accuracy"
           value={totalSeen ? `${Math.round((totalRight / totalSeen) * 100)}%` : "—"}
-          detail={totalSeen ? `${totalRight} of ${totalSeen}` : "no cards yet"}
+          detail={
+            last20.length >= 5
+              ? `last ${last20.length}: ${Math.round((last20.filter((e) => e.correct).length / last20.length) * 100)}%`
+              : totalSeen ? `${totalRight} of ${totalSeen}` : "no cards yet"
+          }
         />
+        <StatTile label="Flipped" value={`${reviewCount}`} detail={`today: ${flipsToday}`} />
         <StatTile
-          label="Median answer time"
+          label="Answer time"
           value={medianMs ? `${(medianMs / 1000).toFixed(1)}s` : "—"}
-          detail="shown → graded"
+          detail="median"
         />
       </div>
 
-      <div className="glyph-grid">
-        {active.map((c) => (
-          <div className="cell" key={c.glyph}>
-            <div className="big" style={{ color: INK[(c.glyph.codePointAt(0) ?? 0) % INK.length] }}>
-              {c.glyph}
+      <div className="gmap">
+        {active.map((c) => {
+          const pct = c.seen ? Math.round((c.right / c.seen) * 100) : null;
+          const bg = c.seen === 0 ? "#f0efec" : LEVEL_BG[c.box - 1];
+          const ink = c.seen === 0 ? "#898781" : LEVEL_INK[c.box - 1];
+          return (
+            <div
+              key={c.glyph}
+              className="gtile"
+              style={{ background: bg, color: ink }}
+              title={`${c.glyph}: level ${c.box}/${MAX_BOX}${c.seen ? `, ${c.right}/${c.seen} right, ${pct}% ` : ", not seen yet"}`}
+            >
+              <div className="g">{c.glyph}</div>
+              <div className="gpct">{pct === null ? "·" : `${pct}%`}</div>
             </div>
-            <div>
-              <div className="stars">
-                {Array.from({ length: MAX_BOX }, (_, i) => (
-                  <span key={i} className={i < c.box ? "" : "off"}>
-                    ⭐
-                  </span>
-                ))}
-              </div>
-              <div className="meta">
-                {c.seen === 0 ? "not seen yet" : `${c.right}/${c.seen} right · ${Math.round((c.right / c.seen) * 100)}%`}
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+      <p className="gmap-key">Shade = practice level (darker is closer to mastered) · label = accuracy</p>
 
       {trickiest.length > 0 && (
         <section>
@@ -245,29 +258,31 @@ export function Stats() {
         </section>
       )}
 
-      {byTilt.length >= 2 && (
-        <section>
-          <h3>Does rotation matter?</h3>
-          <p className="sub">Accuracy by how tilted the card was</p>
-          <div className="chart-card">
-            {byTilt.map((b) => (
-              <BarRow key={b.label} label={b.label} pct={b.right / b.n} n={b.n} />
-            ))}
-          </div>
-        </section>
-      )}
+      <div className="duo">
+        {byTilt.length >= 2 && (
+          <section>
+            <h3>Does rotation matter?</h3>
+            <p className="sub">Accuracy by how tilted the card was</p>
+            <div className="chart-card">
+              {byTilt.map((b) => (
+                <BarRow key={b.label} label={b.label} pct={b.right / b.n} n={b.n} />
+              ))}
+            </div>
+          </section>
+        )}
 
-      {byFont.length >= 2 && totalSeen >= 20 && (
-        <section>
-          <h3>Does the font matter?</h3>
-          <p className="sub">Accuracy by typeface, hardest first</p>
-          <div className="chart-card">
-            {byFont.map(([name, { n, right }]) => (
-              <BarRow key={name} label={name} pct={right / n} n={n} />
-            ))}
-          </div>
-        </section>
-      )}
+        {byFont.length >= 2 && totalSeen >= 20 && (
+          <section>
+            <h3>Does the font matter?</h3>
+            <p className="sub">Accuracy by typeface, hardest first</p>
+            <div className="chart-card">
+              {byFont.map(([name, { n, right }]) => (
+                <BarRow key={name} label={name} pct={right / n} n={n} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
 
       <div className="prog-actions">
         <button className="btn btn-back" onClick={backToCard}>

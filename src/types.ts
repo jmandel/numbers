@@ -24,10 +24,10 @@ export interface CardStyle {
   tilt: number;
 }
 
-export type DeckId = "digits" | "upper" | "lower" | "mixed" | "custom";
-
 export interface Settings {
-  deckId: DeckId;
-  customGlyphs: string;
+  digits: boolean;
+  upper: boolean;
+  lower: boolean;
+  customGlyphs: string; // extra characters appended to the deck
   maxTilt: number; // degrees, 0..30
 }

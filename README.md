@@ -4,8 +4,9 @@ A flashcard app for kids learning to recognize written characters. One big
 character fills the screen; the adult asks the child what it is and grades the
 answer. This generalizes the original single-file
 [numbers.html](https://github.com/jmandel/jmandel.github.io/blob/master/c/numbers.html)
-to numbers, capital letters, small letters, a combined deck, or any custom set
-of characters, and adds rotation, richer tracking, and an insights view.
+so the deck is built by toggling numbers, capital letters, and small letters in
+any combination, plus any extra characters you type, and adds rotation, richer
+tracking, and an insights view.
 
 Each card is drawn in a random font, color, size, and tilt (configurable up to
 30°) so the child learns the shape rather than one rendering of it. Scheduling
