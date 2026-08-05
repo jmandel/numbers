@@ -56,6 +56,11 @@ export const useStore = create<AppState>()(
         for (const g of glyphs) if (!cards[g]) cards[g] = freshCard(g);
         const active = glyphs.map((g) => cards[g]!);
         const current = pickNext(active, s.reviewCount, null);
+        // Trap the Back button: practice lives one history entry deep, so
+        // Back returns to the landing screen to reconfigure.
+        if (window.history.state?.screen !== "play") {
+          window.history.pushState({ screen: "play" }, "");
+        }
         set({
           cards,
           current,

@@ -258,7 +258,15 @@ export function Stats() {
         <button className="btn btn-back" onClick={backToCard}>
           Back to cards
         </button>
-        <button className="btn btn-deck" onClick={() => show("intro")}>
+        <button
+          className="btn btn-deck"
+          onClick={() => {
+            // Pop the practice history entry so Back from the landing
+            // screen behaves normally; popstate switches the screen.
+            if (window.history.state?.screen === "play") window.history.back();
+            else show("intro");
+          }}
+        >
           Change deck
         </button>
         <button
